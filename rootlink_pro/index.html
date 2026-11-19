@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RootLink Pro — Mopani District Agricultural Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════ AUTH SCREEN ══════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+      </div>
+      <div class="auth-logo-name">RootLink Pro</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="showAuthTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="showAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Sign In -->
+    <div id="form-signin" class="auth-form">
+      <div class="auth-error" id="signin-err"></div>
+      <div>
+        <label class="auth-form-label">Phone or Email</label>
+        <input id="si-phone" class="inp" type="text" placeholder="+27 72 ... or email" autocomplete="username">
+      </div>
+      <div>
+        <label class="auth-form-label">Password</label>
+        <input id="si-pass" class="inp" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doSignIn()">Sign In</button>
+      <div class="auth-or">or</div>
+      <button class="btn btn-glass btn-full" onclick="doDemo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Try Demo Account
+      </button>
+    </div>
+
+    <!-- Sign Up -->
+    <div id="form-signup" class="auth-form" style="display:none">
+      <div class="auth-error" id="signup-err"></div>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div>
+          <label class="auth-form-label">First Name</label>
+          <input id="su-fname" class="inp" type="text" placeholder="Thabo">
+        </div>
+        <div>
+          <label class="auth-form-label">Last Name</label>
+          <input id="su-lname" class="inp" type="text" placeholder="Sithole">
+        </div>
+      </div>
+      <div>
+        <label class="auth-form-label">Phone Number</label>
+        <input id="su-phone" class="inp" type="tel" placeholder="+27 72 000 0000">
+      </div>
+      <div>
+        <label class="auth-form-label">Email</label>
+        <input id="su-email" class="inp" type="email" placeholder="you@email.com">
+      </div>
+      <div>
+        <label class="auth-form-label">Role</label>
+        <select id="su-role" class="inp">
+          <option value="farmer">🌾 Farmer</option>
+          <option value="buyer">🛒 Buyer / Trader</option>
+          <option value="transporter">🚚 Transporter</option>
+          <option value="processor">🏭 Processor</option>
+        </select>
+      </div>
+      <div>
+        <label class="auth-form-label">Password</label>
+        <input id="su-pass" class="inp" type="password" placeholder="Min 6 characters">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doSignUp()">Create Account</button>
+    </div>
+
+    <div class="auth-footer">
+      RootLink Pro — Mopani District, Limpopo &nbsp;🌍
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MAIN APP (hidden until auth) ══════════════════ -->
+<div id="app" style="display:none">
+
+  <!-- TOP NAV -->
+  <nav id="top-nav">
+    <button class="nav-menu-btn" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-logo">RootLink</div>
+    <div class="nav-right">
+      <select class="lang-pill" id="lang-sel" onchange="switchLang(this.value)">
+        <option value="en">EN</option>
+        <option value="nso">Sepedi</option>
+        <option value="ts">Tsonga</option>
+        <option value="ve">Venda</option>
+      </select>
+      <div class="nav-user-av" id="nav-av" onclick="showPage('premium')">J</div>
+    </div>
+  </nav>
+
+  <!-- SIDE DRAWER -->
+  <div id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div id="drawer">
+    <div class="drawer-head">
+      <div class="drawer-logo">
+        <div class="drawer-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+        </div>
+        <div class="drawer-logo-name">RootLink Pro</div>
+      </div>
+      <div class="drawer-user-row">
+        <div class="drawer-av" id="drawer-av">J</div>
+        <div>
+          <div class="drawer-uname" id="drawer-uname">Loading...</div>
+          <div class="drawer-uemail" id="drawer-uemail">Mopani District</div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-section">Main</div>
+      <button class="drawer-item active" onclick="navTo('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button class="drawer-item" onclick="navTo('market')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Marketplace
+      </button>
+      <button class="drawer-item" onclick="navTo('collab')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Collaborate
+        <span class="drawer-item-badge">3</span>
+      </button>
+      <button class="drawer-item" onclick="navTo('logistics')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Logistics
+      </button>
+      <div class="drawer-section">Tools</div>
+      <button class="drawer-item" onclick="navTo('quality')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        AI Quality Control
+      </button>
+      <button class="drawer-item" onclick="navTo('map')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        Farm Map
+      </button>
+      <div class="drawer-section">Infrastructure</div>
+      <button class="drawer-item" onclick="navTo('processing')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Processing Units
+      </button>
+      <button class="drawer-item" onclick="navTo('storage')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg>
+        Cold Storage
+      </button>
+      <div class="drawer-section">Community</div>
+      <button class="drawer-item" onclick="navTo('farmlink')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        FarmLink Feed
+      </button>
+      <button class="drawer-item" onclick="navTo('community')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Community Chat
+        <span class="drawer-item-badge" id="unread-badge" style="display:none">!</span>
+      </button>
+      <button class="drawer-item" onclick="navTo('premium')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Premium Plans
+      </button>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-signout" onclick="doSignOut()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGES CONTAINER -->
+  <div id="pages">
+
+    <!-- ── HOME ── -->
+    <div class="page active" id="page-home">
+      <div class="page-inner">
+        <div class="home-hero">
+          <div class="home-logo-mark">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
+              <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+              <circle cx="12" cy="9" r="2.5"/>
+            </svg>
+          </div>
+          <h1 class="home-title">Welcome to <span>RootLink</span></h1>
+          <p class="home-sub" id="home-welcome-sub">Your smart agricultural marketplace for Mopani District, Limpopo</p>
+        </div>
+
+        <div class="card welcome-card glass">
+          <div class="welcome-name" id="home-user-name">Good morning!</div>
+          <div class="welcome-time" id="home-user-role">Farmer · Mopani District</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item"><div class="stat-num">247</div><div class="stat-lbl">Farmers</div></div>
+          <div class="stat-item"><div class="stat-num">R2.4M</div><div class="stat-lbl">Volume</div></div>
+          <div class="stat-item"><div class="stat-num">16</div><div class="stat-lbl">Listings</div></div>
+          <div class="stat-item"><div class="stat-num">98%</div><div class="stat-lbl">Satisfaction</div></div>
+        </div>
+
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="navTo('market')">
+            <div class="quick-btn-icon" style="background:rgba(45,106,79,.3)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#74c69d" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            </div>
+            <div class="quick-btn-label">Marketplace</div>
+            <div class="quick-btn-sub">16 active listings</div>
+          </button>
+          <button class="quick-btn" onclick="navTo('quality')">
+            <div class="quick-btn-icon" style="background:rgba(231,76,60,.18)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff8fa3" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <div class="quick-btn-label">AI Quality Check</div>
+            <div class="quick-btn-sub">Scan your produce</div>
+          </button>
+          <button class="quick-btn" onclick="navTo('logistics')">
+            <div class="quick-btn-icon" style="background:rgba(52,152,219,.18)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#74b9ff" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="quick-btn-label">Book Transport</div>
+            <div class="quick-btn-sub">Get a price quote</div>
+          </button>
+          <button class="quick-btn" onclick="openGrootPanel()">
+            <div class="quick-btn-icon" style="background:rgba(64,145,108,.22)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#74c69d" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="quick-btn-label">Ask Groot AI</div>
+            <div class="quick-btn-sub">Voice assistant</div>
+          </button>
+        </div>
+
+        <div class="section-label">Recent News</div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--gold3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Market Update</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Tomato prices up 18% this week in Tzaneen</div>
+          <div style="font-size:12px;color:var(--text2)">Demand surge from Johannesburg retailers · 2 hours ago</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--g6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Weather Alert</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Rain expected Thursday–Friday, Mopani</div>
+          <div style="font-size:12px;color:var(--text2)">Plan harvests accordingly · South African Weather Service</div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">New Feature</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">Groot AI now supports Sepedi & Tsonga</div>
+          <div style="font-size:12px;color:var(--text2)">Talk to Groot in your home language · Just now</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MARKETPLACE ── -->
+    <div class="page" id="page-market">
+      <div class="page-inner">
+        <div class="section-label">Mopani District</div>
+        <h2 class="section-title">Marketplace</h2>
+        <div class="comm-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          RootLink charges 2.5% commission on successful sales. No listing fees.
+        </div>
+        <div class="mkt-toolbar">
+          <select class="inp inp-sm" id="mkt-cat" onchange="filterListings()">
+            <option value="">All Categories</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Herbs">Herbs</option>
+            <option value="Grains">Grains</option>
+            <option value="Livestock">Livestock</option>
+          </select>
+          <select class="inp inp-sm" id="mkt-sort" onchange="filterListings()">
+            <option value="new">Newest First</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="openSellModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Sell Produce
+          </button>
+        </div>
+        <div class="prod-grid" id="prod-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── COLLABORATE ── -->
+    <div class="page" id="page-collab">
+      <div class="page-inner">
+        <div class="section-label">Farmer Groups</div>
+        <h2 class="section-title">Collaborate</h2>
+        <p class="section-sub">Join farming cooperatives, share resources, and access bulk-buying power.</p>
+        <div class="collab-grid" id="collab-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── LOGISTICS ── -->
+    <div class="page" id="page-logistics">
+      <div class="page-inner">
+        <div class="section-label">Transport & Delivery</div>
+        <h2 class="section-title">Logistics</h2>
+
+        <div class="card" style="margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:14px">Get a Quote</div>
+          <div class="form-grid" style="margin-bottom:12px">
+            <div class="form-field">
+              <label>From (Village / Town)</label>
+              <input class="inp inp-sm" id="logi-from" placeholder="e.g. Tzaneen">
+            </div>
+            <div class="form-field">
+              <label>To (Destination)</label>
+              <input class="inp inp-sm" id="logi-to" placeholder="e.g. Polokwane">
+            </div>
+            <div class="form-field">
+              <label>Load Weight (kg)</label>
+              <input class="inp inp-sm" id="logi-kg" type="number" placeholder="500">
+            </div>
+            <div class="form-field">
+              <label>Date</label>
+              <input class="inp inp-sm" id="logi-date" type="date">
+            </div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:9px">Select Vehicle</div>
+          <div class="vehicle-grid">
+            <div class="vehicle-card sel" id="veh-bakkie" onclick="selVeh('bakkie')">
+              <div class="veh-img-wrap">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="Bakkie" class="veh-img">
+                <div class="veh-img-overlay"></div>
+              </div>
+              <div class="veh-info">
+                <div class="vehicle-name">Bakkie</div>
+                <div class="vehicle-cap">Up to 1 ton</div>
+                <div class="vehicle-rate">R6.50/km</div>
+              </div>
+            </div>
+            <div class="vehicle-card" id="veh-truck" onclick="selVeh('truck')">
+              <div class="veh-img-wrap">
+                <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&q=80" alt="Truck" class="veh-img">
+                <div class="veh-img-overlay"></div>
+              </div>
+              <div class="veh-info">
+                <div class="vehicle-name">Truck (3t)</div>
+                <div class="vehicle-cap">1–3 tons</div>
+                <div class="vehicle-rate">R9.80/km</div>
+              </div>
+            </div>
+            <div class="vehicle-card" id="veh-semi" onclick="selVeh('semi')">
+              <div class="veh-img-wrap">
+                <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=400&q=80" alt="Semi" class="veh-img">
+                <div class="veh-img-overlay"></div>
+              </div>
+              <div class="veh-info">
+                <div class="vehicle-name">Semi (8t)</div>
+                <div class="vehicle-cap">3–8 tons</div>
+                <div class="vehicle-rate">R14.20/km</div>
+              </div>
+            </div>
+            <div class="vehicle-card" id="veh-reefer" onclick="selVeh('reefer')">
+              <div class="veh-img-wrap">
+                <img src="https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?w=400&q=80" alt="Reefer" class="veh-img">
+                <div class="veh-img-overlay"></div>
+              </div>
+              <div class="veh-info">
+                <div class="vehicle-name">Reefer</div>
+                <div class="vehicle-cap">Refrigerated</div>
+                <div class="vehicle-rate">R18.50/km</div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="calcQuote()" style="margin-top:12px">Calculate Quote</button>
+          <div class="route-result" id="route-result">
+            <div class="route-price" id="route-price">R0</div>
+            <div class="route-break" id="route-break"></div>
+          </div>
+        </div>
+
+        <div class="section-label">Registered Carriers</div>
+        <div class="logi-grid" id="logi-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── AI QUALITY CONTROL ── -->
+    <div class="page" id="page-quality">
+      <div class="page-inner">
+        <div class="section-label">AI-Powered</div>
+        <h2 class="section-title">Quality Control</h2>
+
+        <div class="qc-disclaimer">
+          <div class="qc-disc-icon">!</div>
+          <div>
+            <div class="qc-disc-title">Disclaimer — Not Commercially Certified</div>
+            <div class="qc-disc-body">This AI tool is for educational guidance only. Results are simulated and not scientifically validated. Do not use for commercial grading, food safety certification, or export compliance. Always consult a qualified agricultural officer.</div>
+          </div>
+        </div>
+
+        <div class="qc-upload" id="qc-drop" ondrop="qcDrop(event)" ondragover="event.preventDefault()">
+          <div class="qc-upload-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="qc-upload-title">Drop an image here</div>
+          <div class="qc-upload-sub">Supports JPG, PNG, WebP — up to 10MB</div>
+        </div>
+
+        <div class="qc-or">or</div>
+        <div class="qc-btn-row">
+          <label class="qc-cam-btn" for="qc-file">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+            Upload File
+          </label>
+          <label class="qc-cam-btn" for="qc-cam">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Take Photo
+          </label>
+        </div>
+        <input type="file" id="qc-file" accept="image/*" onchange="qcFileSelected(event)">
+        <input type="file" id="qc-cam" accept="image/*" capture="environment" onchange="qcFileSelected(event)">
+
+        <div id="qc-preview-wrap" style="display:none">
+          <img id="qc-img" class="qc-preview" alt="Preview">
+          <div class="qc-ctrl">
+            <button class="btn btn-primary btn-sm" onclick="runQcAnalysis()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Analyse Image
+            </button>
+            <button class="btn btn-glass btn-sm" onclick="resetQC()">New Image</button>
+          </div>
+        </div>
+
+        <div class="qc-loading" id="qc-loading">
+          <div class="qc-spinner"></div>
+          <div style="font-size:14px;color:var(--text2)">Analysing with AI…</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="qc-loading-step">Detecting produce type…</div>
+        </div>
+
+        <div class="qc-result" id="qc-result">
+          <div class="qc-result-hd">
+            <div class="qc-result-icon" id="qc-result-icon"></div>
+            <div>
+              <div class="qc-result-title" id="qc-result-title">Analysis Complete</div>
+              <div class="qc-result-sub" id="qc-result-sub"></div>
+            </div>
+          </div>
+          <div class="qc-score-labels">
+            <span>Quality Score</span>
+            <span id="qc-score-pct">0%</span>
+          </div>
+          <div class="qc-score-track"><div class="qc-score-fill" id="qc-score-fill" style="width:0%;background:var(--g5)"></div></div>
+          <div style="margin-top:16px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--text2)">Issues Found</div>
+          <div class="qc-issues" id="qc-issues"></div>
+          <div class="qc-note">⚠️ These results are AI-generated simulations for educational purposes only. Not validated for commercial use.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FARM MAP ── -->
+    <div class="page" id="page-map">
+      <div class="page-inner">
+        <div class="section-label">Mopani District</div>
+        <h2 class="section-title">Farm Map</h2>
+        <div class="map-legend">
+          <span><span class="leg-dot" style="background:#2d6a4f"></span>Vegetables</span>
+          <span><span class="leg-dot" style="background:#c9a227"></span>Fruits</span>
+          <span><span class="leg-dot" style="background:#3498db"></span>Grains</span>
+          <span><span class="leg-dot" style="background:#e74c3c"></span>Livestock</span>
+          <span><span class="leg-dot" style="background:#9b59b6"></span>Herbs</span>
+        </div>
+        <div class="leaflet-map" id="farm-map"></div>
+      </div>
+    </div>
+
+    <!-- ── PROCESSING ── -->
+    <div class="page" id="page-processing">
+      <div class="page-inner">
+        <div class="section-label">Post-Harvest</div>
+        <h2 class="section-title">Processing Units</h2>
+        <p class="section-sub">Access registered processing facilities across Mopani District for packing, grading, and value-adding.</p>
+        <div class="proc-grid" id="proc-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── COLD STORAGE ── -->
+    <div class="page" id="page-storage">
+      <div class="page-inner">
+        <div class="section-label">Cold Chain</div>
+        <h2 class="section-title">Cold Storage</h2>
+        <p class="section-sub">Refrigerated storage facilities to extend shelf life and reduce post-harvest losses.</p>
+        <div class="stor-grid" id="stor-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── FARMLINK ── -->
+    <div class="page" id="page-farmlink">
+      <div class="page-inner">
+        <div class="fl-layout">
+          <div class="fl-sidebar">
+            <div class="card fl-profile-card" style="margin-bottom:14px">
+              <div class="fl-av" id="fl-av">J</div>
+              <div class="fl-profile-name" id="fl-name">Farmer</div>
+              <div style="font-size:12px;color:#5a8a6a;margin-bottom:12px" id="fl-role-badge">Farmer · Mopani</div>
+              <button class="btn btn-primary btn-full btn-sm" onclick="navTo('premium')">Go Premium</button>
+            </div>
+            <div class="card fl-ai-advice" style="margin-bottom:14px">
+              <div class="fl-ai-label">🌿 Trending Topics</div>
+              <div class="fl-trend-tags">
+                <span class="trend-tag">#TomatoHarvest</span>
+                <span class="trend-tag">#WaterSaving</span>
+                <span class="trend-tag">#Organic</span>
+                <span class="trend-tag">#Avocado2025</span>
+                <span class="trend-tag">#Cooperatives</span>
+                <span class="trend-tag">#DroughtTips</span>
+              </div>
+            </div>
+          </div>
+          <div class="fl-feed">
+            <div class="card fl-compose" style="margin-bottom:16px">
+              <textarea class="fl-ta" id="fl-new-post" placeholder="Share a farming tip, photo, or question…" rows="3"></textarea>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-primary btn-sm" onclick="submitPost()">Post</button>
+                <button class="btn btn-glass btn-sm">📷 Photo</button>
+              </div>
+            </div>
+            <div id="fl-feed-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COMMUNITY CHAT ── -->
+    <div class="page" id="page-community">
+      <div class="page-inner">
+        <div class="community-wrap">
+          <div class="ch-sidebar">
+            <div class="ch-label"># Channels</div>
+            <button class="ch-btn active" onclick="switchChannel('general')">🌍 General</button>
+            <button class="ch-btn" onclick="switchChannel('market_prices')">💰 Prices</button>
+            <button class="ch-btn" onclick="switchChannel('weather')">🌤 Weather</button>
+            <button class="ch-btn" onclick="switchChannel('equipment')">🔧 Equipment</button>
+            <button class="ch-btn" onclick="switchChannel('youth')">🌱 Youth</button>
+          </div>
+          <div class="chat-panel">
+            <div class="chat-hd">
+              <span># <span id="chat-ch-name">general</span></span>
+              <span style="font-size:12px;color:var(--text3)"><span class="online-dot"></span>23 online</span>
+            </div>
+            <div class="chat-msgs" id="chat-msgs"></div>
+            <div class="chat-input-row">
+              <input class="inp inp-sm" id="chat-inp" placeholder="Message..." style="flex:1" onkeydown="if(event.key==='Enter')sendChatMsg()">
+              <button class="btn btn-primary btn-sm" onclick="sendChatMsg()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PREMIUM ── -->
+    <div class="page" id="page-premium">
+      <div class="page-inner">
+        <div style="text-align:center;padding:28px 0 32px">
+          <div class="section-label">Upgrade</div>
+          <h2 class="section-title">Premium Plans</h2>
+          <p class="section-sub">Unlock powerful tools to grow your farming business across Mopani District.</p>
+        </div>
+        <div class="plans-wrap">
+          <div class="card">
+            <div class="plan-tier">Free</div>
+            <div class="plan-price">R0 <small>/mo</small></div>
+            <ul class="plan-features">
+              <li class="feat-y">3 listings/month</li>
+              <li class="feat-y">Basic marketplace access</li>
+              <li class="feat-y">Community chat</li>
+              <li class="feat-y">FarmLink feed</li>
+              <li class="feat-n" style="color:var(--text3)">AI Quality Control</li>
+              <li class="feat-n" style="color:var(--text3)">Logistics quotes</li>
+              <li class="feat-n" style="color:var(--text3)">Market price alerts</li>
+            </ul>
+            <button class="btn btn-outline btn-full">Current Plan</button>
+          </div>
+          <div class="card plan-featured" style="position:relative">
+            <div class="plan-badge">Most Popular</div>
+            <div class="plan-tier" style="color:var(--gold3)">Pro</div>
+            <div class="plan-price" style="color:var(--gold2)">R149 <small>/mo</small></div>
+            <ul class="plan-features">
+              <li class="feat-y">Unlimited listings</li>
+              <li class="feat-y">AI Quality Control scans</li>
+              <li class="feat-y">Logistics price calculator</li>
+              <li class="feat-y">Market price alerts</li>
+              <li class="feat-y">Priority support</li>
+              <li class="feat-y">FarmLink verified badge</li>
+              <li class="feat-n" style="color:var(--text3)">Dedicated account manager</li>
+            </ul>
+            <button class="btn btn-gold btn-full" onclick="showPremModal('pro')">Upgrade to Pro</button>
+            <div class="plan-note">First 30 days free · Cancel anytime</div>
+          </div>
+          <div class="card card-gold">
+            <div class="plan-tier" style="color:var(--gold3)">Enterprise</div>
+            <div class="plan-price">R599 <small>/mo</small></div>
+            <ul class="plan-features">
+              <li class="feat-y">Everything in Pro</li>
+              <li class="feat-y">Dedicated account manager</li>
+              <li class="feat-y">Cooperative bulk tools</li>
+              <li class="feat-y">Export documentation</li>
+              <li class="feat-y">White-label invoicing</li>
+              <li class="feat-y">API access</li>
+              <li class="feat-y">Training &amp; onboarding</li>
+            </ul>
+            <button class="btn btn-gold btn-full" onclick="showPremModal('enterprise')">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="bot-btn active" id="bot-home" onclick="navTo('home')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="bot-btn" id="bot-market" onclick="navTo('market')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Market
+    </button>
+    <button class="bot-btn" id="bot-quality" onclick="navTo('quality')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Quality
+    </button>
+    <button class="bot-btn" id="bot-community" onclick="navTo('community')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Chat
+    </button>
+    <button class="bot-btn bot-more" onclick="toggleDrawer()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      More
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ══════════════════ GROOT AI PANEL ══════════════════ -->
+<button class="groot-fab" id="groot-fab" onclick="toggleGrootPanel()" style="display:none" aria-label="Groot AI">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
+    <path d="M12 2a9 9 0 110 18 9 9 0 010-18z"/>
+    <path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+  </svg>
+  <span class="groot-fab-label">Ask Groot</span>
+</button>
+
+<div class="groot-panel" id="groot-panel">
+  <div class="groot-hd">
+    <div class="groot-title-row">
+      <div class="groot-logo">G</div>
+      <div>
+        <div class="groot-name">Groot</div>
+        <div class="groot-status" id="groot-status">AI Farming Assistant</div>
+      </div>
+    </div>
+    <div class="groot-ctrl">
+      <button class="groot-voice-btn" id="groot-tts-toggle" onclick="toggleTTS()" title="Toggle voice">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+      </button>
+      <button class="groot-close" onclick="closeGrootPanel()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="groot-orb-wrap">
+    <div class="groot-orb idle" id="groot-orb">
+      <div class="orb-core"></div>
+    </div>
+    <div class="orb-label" id="groot-orb-label">tap the mic or type below</div>
+  </div>
+
+  <div class="groot-quick">
+    <button class="gq-btn" onclick="quickAsk('What vegetables grow best in Mopani?')">Best crops?</button>
+    <button class="gq-btn" onclick="quickAsk('What are tomato prices today?')">Tomato prices</button>
+    <button class="gq-btn" onclick="quickAsk('How to prevent crop disease?')">Prevent disease</button>
+    <button class="gq-btn" onclick="quickAsk('Tips for water saving irrigation')">Water saving</button>
+    <button class="gq-btn" onclick="quickAsk('How to sell on RootLink?')">Sell produce</button>
+  </div>
+
+  <div class="groot-msgs" id="groot-msgs">
+    <div class="groot-msg">
+      <div class="groot-msg-av groot-av-g">G</div>
+      <div class="groot-bubble">Sawubona! I'm Groot, your RootLink AI assistant. I can help with crop advice, market prices, logistics, and more. How can I help you today? 🌱</div>
+    </div>
+  </div>
+
+  <div class="groot-input-row">
+    <input class="inp" id="groot-input" placeholder="Ask Groot anything..." onkeydown="if(event.key==='Enter')sendGrootMsg()">
+    <button class="mic-btn" id="groot-mic" onclick="toggleListening()" title="Voice input">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <button class="groot-send" onclick="sendGrootMsg()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ MODALS ══════════════════ -->
+<!-- Sell Modal -->
+<div class="modal-overlay" id="sell-modal">
+  <div class="card modal">
+    <div class="modal-hd">
+      <h3>List Produce for Sale</h3>
+      <button class="modal-close" onclick="closeSellModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sell-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Produce Name</label>
+          <input class="inp inp-sm" id="sell-name" placeholder="e.g. Roma Tomatoes">
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select class="inp inp-sm" id="sell-cat">
+            <option>Vegetables</option><option>Fruits</option><option>Herbs</option><option>Grains</option><option>Livestock</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Price (R per kg)</label>
+          <input class="inp inp-sm" id="sell-price" type="number" placeholder="12.50">
+        </div>
+        <div class="form-field">
+          <label>Quantity Available (kg)</label>
+          <input class="inp inp-sm" id="sell-qty" type="number" placeholder="500">
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Village / Area</label>
+          <input class="inp inp-sm" id="sell-loc" placeholder="e.g. Tzaneen">
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Description</label>
+          <textarea class="inp inp-sm" id="sell-desc" rows="3" placeholder="Describe your produce, farming methods, available dates…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn btn-primary btn-full" onclick="submitListing()">List for Sale</button>
+      <button class="btn btn-glass" onclick="closeSellModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Premium Modal -->
+<div class="modal-overlay" id="prem-modal">
+  <div class="card modal">
+    <div class="modal-hd">
+      <h3 id="prem-modal-title">Upgrade to Pro</h3>
+      <button class="modal-close" onclick="document.getElementById('prem-modal').classList.remove('show')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-price" id="prem-modal-price">R149 <small>/mo</small></div>
+    <ul class="modal-feats" id="prem-modal-feats"></ul>
+    <div class="modal-note">🔒 Secure payment via PayFast · Cancel anytime · First 30 days free</div>
+    <div class="modal-actions">
+      <button class="btn btn-gold btn-full" onclick="showToast('Payment coming soon! This is a demo.')">Subscribe Now</button>
+      <button class="btn btn-glass btn-full" onclick="document.getElementById('prem-modal').classList.remove('show')">Maybe Later</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
